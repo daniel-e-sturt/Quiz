@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mission report — Mission IQ</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero result-hero">
+      <p class="eyebrow">MISSION CONTROL · DEBRIEF</p>
+      <h1>Mission <span>report</span></h1>
+      <p class="intro">Your crew's decisions are in. Here's how the mission went.</p>
+    </header>
+    <section class="score-card">
+      <p class="eyebrow">KNOWLEDGE SCORE</p>
+      <p class="score">{{ tp_score }}<span> / 10</span></p>
+      <p>{{ score }} of 16 correct · Story choices do not affect your score.</p>
+    </section>
+    <section class="ending">
+      <p class="eyebrow">YOUR STORY ENDING</p>
+      <h2>{{ ending[0] }}</h2>
+      <p>{{ ending[1] }}</p>
+    </section>
+    {% set section = namespace(name='') %}
+    {% for question in questions %}
+      {% if question.section != section.name %}
+        {% if section.name %}</section>{% endif %}
+        {% set section.name = question.section %}
+        <section class="review-section"><h2>{{ question.section }}</h2>
+      {% endif %}
+      {% set selected = namespace(label='') %}
+      {% for value, label in question.choices %}
+        {% if value == answers[question.id] %}{% set selected.label = label %}{% endif %}
+      {% endfor %}
+      <article class="review">
+        <h3><span class="number">{{ question.number }}</span><span>{{ question.text }}</span></h3>
+        <p><strong>Your choice:</strong> {{ selected.label }}
+          {% if question.get('story') %}<span class="badge story">Story choice</span>
+          {% elif answers[question.id] == question.answer %}<span class="badge correct">Correct</span>
+          {% else %}<span class="badge incorrect">Review this one</span>{% endif %}
+        </p>
+        <p class="explanation">{{ question.explanation }}</p>
+      </article>
+      {% if loop.last %}</section>{% endif %}
+    {% endfor %}
+    <div class="try-again"><a href="{{ url_for('index') }}">Try the quiz again <span aria-hidden="true">↗</span></a></div>
+    <footer>Stay curious. Look out for your crew.</footer>
+  </main>
+</body>
+</html>
